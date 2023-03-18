@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-	Method to convert time - in seconds passed since epoch - from GMT time zone to given time zone expressed in Posix Time Zone format
+	Method to convert time - in seconds passed since Unix epoch - from GMT time zone to given time zone expressed in Posix Time Zone format
 	
 	:author:	Roberto Bellingeri
 	:copyright:	Copyright 2023 - NetGuru
