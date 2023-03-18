@@ -25,10 +25,10 @@ def checkptz(ptz_string: str):
 	Check if the format of the string complies with what is described here: https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
 
 	Parameters:
-    ptz_string (str): String in Posix Time Zone format
-    
-    Returns:
-    bool: Test result
+	ptz_string (str): String in Posix Time Zone format
+	
+	Returns:
+	bool: Test result
 	"""
 	ptz_string = ptz_string.upper()
 	
@@ -84,11 +84,11 @@ def tztime(timestamp: float, ptz_string: str):
 	Adjust the time in seconds according to the time zone provided in Posix format
 
 	Parameters:
-    timestamp (float): Time in second
-    ptz_string (str): Time zone in Posix format
-    
-    Returns:
-    float: Time adjusted
+	timestamp (float): Time in second
+	ptz_string (str): Time zone in Posix format
+	
+	Returns:
+	float: Time adjusted
 	"""
 	ptz_string = ptz_string.upper()
 
@@ -134,11 +134,11 @@ def _parseposixtransition(transition: str, year: int):
 	Returns the moment of the transition from std to dst and vice-versa
 
 	Parameters:
-    transition (str): Part of Posix Time Zone string related to the transition
-    year (int): The year
-    
-    Returns:
-    float: Time adjusted
+	transition (str): Part of Posix Time Zone string related to the transition
+	year (int): The year
+	
+	Returns:
+	float: Time adjusted
 	"""
 	parts = transition.split('/')
 	seconds = 0
@@ -198,10 +198,10 @@ def _hours2secs(hours: str):
 	Convert hours string in seconds
 
 	Parameters:
-    hours (str): Hours in format 00[:00][:00]
-    
-    Returns:
-    int: seconds
+	hours (str): Hours in format 00[:00][:00]
+	
+	Returns:
+	int: seconds
 	"""
 	seconds = 0
 
