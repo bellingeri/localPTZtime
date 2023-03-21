@@ -34,47 +34,49 @@ def checkptz(ptz_string: str):
 	
 	result = None
 
-	check_re = r"^"
-	check_re += r"([^:\d+-]){3,}"  # std
-	check_re += r"[+-]?\d{1,2}(:\d{1,2}){0,2}" # std offset
-	
-	check_re += r"(([^:\d+-,]){3,}"  # dst, can be omitted
-	check_re += r"(([+-]?\d{1,2}(:\d{1,2}){0,2})?" # dst offset, can be omitted
-	
-	check_re += r","  #dst start
-	check_re += r"("
-	check_re += r"(J\d{1,3})"  #day, leap years don't count 
-	check_re += r"|"
-	check_re += r"(\d{1,3})"  #day, leap years count 
-	check_re += r"|"
-	check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
-	check_re += r")"
+	if (callable(re.fullmatch)):
 
-	check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
+		check_re = r"^"
+		check_re += r"([^:\d+-]){3,}"  # std
+		check_re += r"[+-]?\d{1,2}(:\d{1,2}){0,2}" # std offset
+		
+		check_re += r"(([^:\d+-,]){3,}"  # dst, can be omitted
+		check_re += r"(([+-]?\d{1,2}(:\d{1,2}){0,2})?" # dst offset, can be omitted
+		
+		check_re += r","  #dst start
+		check_re += r"("
+		check_re += r"(J\d{1,3})"  #day, leap years don't count 
+		check_re += r"|"
+		check_re += r"(\d{1,3})"  #day, leap years count 
+		check_re += r"|"
+		check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
+		check_re += r")"
 
-	check_re += r","  #dst end
-	check_re += r"("
-	check_re += r"(J\d{1,3})"  #day, leap years don't count
-	check_re += r"|"
-	check_re += r"(\d{1,3})"  #day, leap years count
-	check_re += r"|"
-	check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
-	check_re += r")"
+		check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
 
-	check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
-	
-	check_re += r")" # dst offset end
+		check_re += r","  #dst end
+		check_re += r"("
+		check_re += r"(J\d{1,3})"  #day, leap years don't count
+		check_re += r"|"
+		check_re += r"(\d{1,3})"  #day, leap years count
+		check_re += r"|"
+		check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
+		check_re += r")"
 
-	check_re += r")?" # dst end
-	
-	check_re += r"$"
+		check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
+		
+		check_re += r")" # dst offset end
 
-	#print(check_re)
+		check_re += r")?" # dst end
+		
+		check_re += r"$"
 
-	if (re.fullmatch(check_re,ptz_string) == None):
-		result = False
-	else:
-		result = True
+		#print(check_re)
+
+		if (re.fullmatch(check_re,ptz_string) == None):
+			result = False
+		else:
+			result = True
 
 	return result
 
@@ -97,13 +99,11 @@ def tztime(timestamp: float, ptz_string: str):
 
 	ptz_parts = ptz_string.split(",")
 
-	zone_parts = re.split(r"[\d\+\-\:]+", ptz_parts[0])
-	zone_parts = list(filter(None, zone_parts))
-	#print(zone_parts)
+	offsetHours = re.split(r"[^\d\+\-\:]+", ptz_parts[0])
+	offsetHours = list(filter(None, offsetHours))
+	#print(offsetHours)
 
-	if (len(zone_parts) > 0):
-		offsetHours = re.findall(r"[+-]?(?:\d{1,2}(?:\:\d{1,2}){0,2})", ptz_parts[0])
-		#print(offsetHours)
+	if (len(offsetHours) > 0):
 
 		std_offset_seconds = - _hours2secs(offsetHours[0])
 
