@@ -14,4 +14,5 @@ A complete list of strings - and the code to generate them starting from the dat
 ## Da fare
 
 1. Test for various timezones and for special cases.
-2. Consider whether it is possible to remove the dependency on the 'time' module.
+2. Micropython compatibility
+3. Consider whether it is possible to remove the dependency on the 'time' module.
