@@ -36,10 +36,10 @@ def checkptz(ptz_string: str):
 
 	check_re = r"^"
 	check_re += r"([^:\d+-]){3,}"  # std
-	check_re += r"[+-]?(\d){1,2}(:(\d){1,2}){0,2}" # std offset
+	check_re += r"[+-]?\d{1,2}(:\d{1,2}){0,2}" # std offset
 	
 	check_re += r"(([^:\d+-,]){3,}"  # dst, can be omitted
-	check_re += r"(([+-]?(\d){1,2}(:(\d){1,2}){0,2})?" # dst offset, can be omitted
+	check_re += r"(([+-]?\d{1,2}(:\d{1,2}){0,2})?" # dst offset, can be omitted
 	
 	check_re += r","  #dst start
 	check_re += r"("
@@ -50,7 +50,7 @@ def checkptz(ptz_string: str):
 	check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
 	check_re += r")"
 
-	check_re += r"(/(\d){1,2}(:(\d){1,2}){0,2})?"  # time, can be omitted
+	check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
 
 	check_re += r","  #dst end
 	check_re += r"("
@@ -61,7 +61,7 @@ def checkptz(ptz_string: str):
 	check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
 	check_re += r")"
 
-	check_re += r"(/(\d){1,2}(:(\d){1,2}){0,2})?"  # time, can be omitted
+	check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
 	
 	check_re += r")" # dst offset end
 
@@ -69,7 +69,7 @@ def checkptz(ptz_string: str):
 	
 	check_re += r"$"
 
-	#print(reStr)
+	#print(check_re)
 
 	if (re.fullmatch(check_re,ptz_string) == None):
 		result = False
@@ -97,10 +97,13 @@ def tztime(timestamp: float, ptz_string: str):
 
 	ptz_parts = ptz_string.split(",")
 
-	zone_parts = re.split(r"([0-9\+\-\.]+)", ptz_parts[0])
+	zone_parts = re.split(r"[\d\+\-\:]+", ptz_parts[0])
+	zone_parts = list(filter(None, zone_parts))
+	#print(zone_parts)
 
-	if (len(zone_parts) > 1):
-		offsetHours = re.findall(r"[-+]?(?:\d+\:*\d*\:*\d*)", ptz_parts[0])
+	if (len(zone_parts) > 0):
+		offsetHours = re.findall(r"[+-]?(?:\d{1,2}(?:\:\d{1,2}){0,2})", ptz_parts[0])
+		#print(offsetHours)
 
 		std_offset_seconds = - _hours2secs(offsetHours[0])
 
@@ -109,22 +112,22 @@ def tztime(timestamp: float, ptz_string: str):
 		else:
 			dst_offset_seconds = 3600
 
-	#print("t:\t\t" + str(int(t)))
+	#print("timestamp:\t" + str(int(timestamp)))
 
 	timemod = timestamp + std_offset_seconds
 
 	#print("timemod:\t" + str(int(timemod)))
 
 	if (len(ptz_parts)==3):
-		year = time.gmtime(timemod)[0]
+		year = time.gmtime(int(timemod))[0]
 		dst_start = _parseposixtransition(ptz_parts[1], year)
 		dst_end = _parseposixtransition(ptz_parts[2], year)
 		if ((timestamp >= dst_start) and (timemod < dst_end)):
 			timemod += dst_offset_seconds
 
-	#print("dstOffset:\t" + str(dst_offset_seconds))
-	#print("dstStart:\t" + time.strftime("%d-%m-%Y %H:%M:%S", time.gmtime(dst_start)))
-	#print("dstEnd:  \t" + time.strftime("%d-%m-%Y %H:%M:%S", time.gmtime(dst_end)))
+		#print("dstOffset:\t" + str(dst_offset_seconds))
+		#print("dstStart:\t" + time.strftime("%d-%m-%Y %H:%M:%S", time.gmtime(dst_start)))
+		#print("dstEnd:  \t" + time.strftime("%d-%m-%Y %H:%M:%S", time.gmtime(dst_end)))
 
 	return timemod
 
@@ -181,14 +184,14 @@ def _parseposixtransition(transition: str, year: int):
 			tr = time.mktime((year, month, day_of_month, 0, 0, 0, 0, 0, 0))
 		
 	elif (transition[0] == "J"):
-		day_num = parts[0][1:]
+		day_num = int(parts[0][1:])
 		if ((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0):
 			day_num += 1
-		tr = time.mktime((year,1,1,0,0,0,0,0,0) + (day_num * 86400))
+		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + (day_num * 86400)
 
 	else:
-		day_num = parts[0][1:]
-		tr = time.mktime((year,1,1,0,0,0,0,0,0) + ((day_num + 1) * 86400))
+		day_num = int(parts[0][1:])
+		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + ((day_num + 1) * 86400)
 
 	return tr + seconds
 
