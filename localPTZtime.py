@@ -140,6 +140,8 @@ def tztime(timestamp: float, ptz_string: str):
 		#print("dstOffset:\t" + str(dst_offset_seconds))
 		print("dstStart:\t" + str(time.gmtime(dst_start)))
 		print("dstEnd:  \t" + str(time.gmtime(dst_end)))
+	else:
+		timemod = timestamp + std_offset_seconds
 
 	return timemod
 
