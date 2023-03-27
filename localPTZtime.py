@@ -120,20 +120,20 @@ def tztime(timestamp: float, ptz_string: str):
 
 	if (len(ptz_parts)==3):
 		year = time.gmtime(int(timestamp))[0]
-		dst_start = _parseposixtransition(ptz_parts[1], year) + dst_offset_seconds
-		dst_end = _parseposixtransition(ptz_parts[2], year) + dst_offset_seconds
+		dst_start = _parseposixtransition(ptz_parts[1], year) - std_offset_seconds
+		dst_end = _parseposixtransition(ptz_parts[2], year) - std_offset_seconds
 
 		if (dst_start < dst_end):							#northern hemisphere
-			if ((timestamp + std_offset_seconds) < dst_start):
+			if (timestamp < dst_start):
 				tot_offset_seconds = std_offset_seconds
-			elif ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+			elif ((timestamp + dst_offset_seconds) < dst_end):
 				tot_offset_seconds =  std_offset_seconds + dst_offset_seconds
 			else:
 				tot_offset_seconds =  std_offset_seconds
 		else:												# southern hemisphere
-			if ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+			if ((timestamp + dst_offset_seconds) < dst_end):
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
-			elif ((timestamp + std_offset_seconds) < dst_start):
+			elif (timestamp < dst_start):
 				tot_offset_seconds = std_offset_seconds
 			else:
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
@@ -148,7 +148,6 @@ def tztime(timestamp: float, ptz_string: str):
 	timemod = timestamp + tot_offset_seconds
 
 	tx = time.gmtime(int(timemod))
-	stx = str(tx[0]) + "-" + str(tx[1]) + "-" + str(tx[2]) + "T" + str(tx[3]) + ":" + str(tx[4]) + ":" + str(tx[5])
 	stx = f"{tx[0]}-{tx[1]:02d}-{tx[2]:02d}T{tx[3]:02d}:{tx[4]:02d}:{tx[5]:02d}"
 	stx += _secs2hoursmins(tot_offset_seconds)
 

@@ -2,6 +2,10 @@
 
 import localPTZtime
 import time
+import os
+
+os.environ['TZ'] = "Etc/GMT" # set timezone for test
+time.tzset()
 
 test = list()
 

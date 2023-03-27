@@ -13,7 +13,6 @@ A complete list of strings - and the code to generate them starting from the dat
 
 ## To Do
 
-0. Fix problems with DST starting and ending
 1. Test for various timezones and special cases.
 2. Micropython compatibility
 3. Consider whether it is possible to remove the dependency on the 'time' module.
