@@ -85,24 +85,25 @@ def checkptz(ptz_string: str):
 
 def tztime(timestamp: float, ptz_string: str):
 	"""
-	Adjust the time in seconds according to the time zone provided in Posix format
+	Return an ISO 8601 Date string according to the time zone provided in Posix format
 
 	Parameters:
 	timestamp (float): Time in second
 	ptz_string (str): Time zone in Posix format
 	
 	Returns:
-	float: Time adjusted
+	string: ISO 8601 Date string
 	"""
 	ptz_string = ptz_string.upper()
 
 	std_offset_seconds = 0
 	dst_offset_seconds = 0
-	timemod = 0
+	tot_offset_seconds = 0
 
 	ptz_parts = ptz_string.split(",")
 
-	offsetHours = re.split(r"[^\d\+\-\:]+", ptz_parts[0])
+	#offsetHours = re.split(r"[^\d\+\-\:]+", ptz_parts[0])
+	offsetHours = re.compile(r"[^\d\+\-\:]+").split(ptz_parts[0])  # For micropython compatibility
 	offsetHours = list(filter(None, offsetHours))
 	#print(offsetHours)
 
@@ -119,31 +120,39 @@ def tztime(timestamp: float, ptz_string: str):
 
 	if (len(ptz_parts)==3):
 		year = time.gmtime(int(timestamp))[0]
-		dst_start = _parseposixtransition(ptz_parts[1], year)
-		dst_end = _parseposixtransition(ptz_parts[2], year) #+ dst_offset_seconds
-		
+		dst_start = _parseposixtransition(ptz_parts[1], year) + dst_offset_seconds
+		dst_end = _parseposixtransition(ptz_parts[2], year) + dst_offset_seconds
+
 		if (dst_start < dst_end):							#northern hemisphere
-			if (timestamp < dst_start):
-				timemod = timestamp + std_offset_seconds
-			elif ((timestamp + dst_offset_seconds) < dst_end):
-				timemod = timestamp + std_offset_seconds + dst_offset_seconds
+			if ((timestamp + std_offset_seconds) < dst_start):
+				tot_offset_seconds = std_offset_seconds
+			elif ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+				tot_offset_seconds =  std_offset_seconds + dst_offset_seconds
 			else:
-				timemod = timestamp + std_offset_seconds
+				tot_offset_seconds =  std_offset_seconds
 		else:												# southern hemisphere
-			if ((timestamp + dst_offset_seconds) < dst_end):
-				timemod = timestamp + std_offset_seconds + dst_offset_seconds
-			elif (timestamp < dst_start):
-				timemod = timestamp + std_offset_seconds
+			if ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
+			elif ((timestamp + std_offset_seconds) < dst_start):
+				tot_offset_seconds = std_offset_seconds
 			else:
-				timemod = timestamp + std_offset_seconds + dst_offset_seconds
+				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
 		
 		#print("dstOffset:\t" + str(dst_offset_seconds))
-		#print("dstStart:\t" + str(time.gmtime(dst_start)))
-		#print("dstEnd:  \t" + str(time.gmtime(dst_end)))
-	else:
-		timemod = timestamp + std_offset_seconds
+		#print("dstStart:\t" + str(dst_start) + "\t" + str(time.gmtime(dst_start)))
+		#print("dstEnd:  \t" + str(dst_end) + "\t" + str(time.gmtime(dst_end)))
 
-	return timemod
+	else:
+		tot_offset_seconds = std_offset_seconds
+
+	timemod = timestamp + tot_offset_seconds
+
+	tx = time.gmtime(int(timemod))
+	stx = str(tx[0]) + "-" + str(tx[1]) + "-" + str(tx[2]) + "T" + str(tx[3]) + ":" + str(tx[4]) + ":" + str(tx[5])
+	stx = f"{tx[0]}-{tx[1]:02d}-{tx[2]:02d}T{tx[3]:02d}:{tx[4]:02d}:{tx[5]:02d}"
+	stx += _secs2hoursmins(tot_offset_seconds)
+
+	return stx
 
 
 def _parseposixtransition(transition: str, year: int):
@@ -232,3 +241,25 @@ def _hours2secs(hours: str):
 				seconds += int(hours_parts[2])
 	
 	return seconds
+
+
+def _secs2hoursmins(sec: int):
+	"""
+	Convert seconds in hours:mins string
+
+	Parameters:
+	sec (int): seconds
+	
+	Returns:
+	str: Hours in format 00:00
+	"""
+	output = ""
+
+	if (sec != 0):
+		output += f"{(sec // 3600):+03d}"
+		
+		mins = abs(sec) % 3600
+		if (mins != 0):
+			output += ":" + f"{(mins // 60):02d}"
+	
+	return output
