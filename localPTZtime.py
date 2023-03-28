@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-	Method to convert time - in seconds passed since Unix epoch - from GMT time zone to given time zone expressed in Posix Time Zone format
+	Method to convert time - in seconds passed since Unix epoch - from GMT time zone to given time zone expressed in Posix Time Zone format.
 	
 	:author:	Roberto Bellingeri
 	:copyright:	Copyright 2023 - NetGuru
@@ -23,6 +23,7 @@ import re
 def checkptz(ptz_string: str):
 	"""
 	Check if the format of the string complies with what is described here: https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
+	Only for testing purposes: on MicroPython always return 'None'.
 
 	Parameters:
 	ptz_string (str): String in Posix Time Zone format
@@ -30,11 +31,11 @@ def checkptz(ptz_string: str):
 	Returns:
 	bool: Test result
 	"""
-	ptz_string = ptz_string.upper()
+	ptz_string = _normalize(ptz_string)
 	
 	result = None
 
-	try:
+	if hasattr(re, 'fullmatch'):							# re.fullmatch() is not defined in MicroPython
 		check_re = r"^"
 		check_re += r"([^:\d+-]){3,}"  # std
 		check_re += r"[+-]?\d{1,2}(:\d{1,2}){0,2}" # std offset
@@ -72,29 +73,27 @@ def checkptz(ptz_string: str):
 
 		#print(check_re)
 
-		if (re.fullmatch(check_re,ptz_string) == None):
+		if (re.fullmatch(check_re,ptz_string) == None):		# type: ignore
 			result = False
 		else:
 			result = True
-	except:
-		#raise NotImplementedError()
-		pass
 
 	return result
 
 
-def tztime(timestamp: float, ptz_string: str):
+def tztime(timestamp: float, ptz_string: str, zone_designator = True):
 	"""
-	Return an ISO 8601 Date string according to the time zone provided in Posix format
+	Return an ISO 8601 date and time string according to the time zone provided in Posix Time Zone format
 
 	Parameters:
 	timestamp (float): Time in second
 	ptz_string (str): Time zone in Posix format
+	zone_designator (bool): Insert zone designator in returned string - default: True
 	
 	Returns:
-	string: ISO 8601 Date string
+	string: ISO 8601 date and time string
 	"""
-	ptz_string = ptz_string.upper()
+	ptz_string = _normalize(ptz_string)
 
 	std_offset_seconds = 0
 	dst_offset_seconds = 0
@@ -103,7 +102,7 @@ def tztime(timestamp: float, ptz_string: str):
 	ptz_parts = ptz_string.split(",")
 
 	#offsetHours = re.split(r"[^\d\+\-\:]+", ptz_parts[0])
-	offsetHours = re.compile(r"[^\d\+\-\:]+").split(ptz_parts[0])  # For micropython compatibility
+	offsetHours = re.compile(r"[^\d\+\-\:]+").split(ptz_parts[0])  # re.compile() is used for MicroPython compatibility
 	offsetHours = list(filter(None, offsetHours))
 	#print(offsetHours)
 
@@ -120,20 +119,20 @@ def tztime(timestamp: float, ptz_string: str):
 
 	if (len(ptz_parts)==3):
 		year = time.gmtime(int(timestamp))[0]
-		dst_start = _parseposixtransition(ptz_parts[1], year) - std_offset_seconds
-		dst_end = _parseposixtransition(ptz_parts[2], year) - std_offset_seconds
+		dst_start = _parseposixtransition(ptz_parts[1], year)
+		dst_end = _parseposixtransition(ptz_parts[2], year)
 
 		if (dst_start < dst_end):							#northern hemisphere
-			if (timestamp < dst_start):
+			if ((timestamp + std_offset_seconds) < dst_start):
 				tot_offset_seconds = std_offset_seconds
-			elif ((timestamp + dst_offset_seconds) < dst_end):
+			elif ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
 				tot_offset_seconds =  std_offset_seconds + dst_offset_seconds
 			else:
 				tot_offset_seconds =  std_offset_seconds
 		else:												# southern hemisphere
-			if ((timestamp + dst_offset_seconds) < dst_end):
+			if ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
-			elif (timestamp < dst_start):
+			elif ((timestamp + std_offset_seconds) < dst_start):
 				tot_offset_seconds = std_offset_seconds
 			else:
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
@@ -149,9 +148,27 @@ def tztime(timestamp: float, ptz_string: str):
 
 	tx = time.gmtime(int(timemod))
 	stx = f"{tx[0]}-{tx[1]:02d}-{tx[2]:02d}T{tx[3]:02d}:{tx[4]:02d}:{tx[5]:02d}"
-	stx += _secs2hoursmins(tot_offset_seconds)
+	if (zone_designator == True):
+		stx += _secs2zonedesignator(tot_offset_seconds)
 
 	return stx
+
+
+def _normalize(ptz_string: str):
+	"""
+	Return simple normalization of PTZ string
+
+	Parameters:
+	ptz_string (str): PTZ string
+
+	Returns:
+	str: Normalized PTZ string
+
+	"""
+	ptz_string = ptz_string.upper()
+	ptz_string = re.compile(r"\<[^\>]*\>").sub("DUMMY",ptz_string) # For what appear to be non-standard strings like "<+11>-11<+12>,M10.1.0,M4.1.0/3"
+
+	return ptz_string
 
 
 def _parseposixtransition(transition: str, year: int):
@@ -242,9 +259,9 @@ def _hours2secs(hours: str):
 	return seconds
 
 
-def _secs2hoursmins(sec: int):
+def _secs2zonedesignator(sec: int):
 	"""
-	Convert seconds in hours:mins string
+	Convert seconds in hours:mins string for ISO 8601
 
 	Parameters:
 	sec (int): seconds
