@@ -201,7 +201,7 @@ def _parseposixtransition(transition: str, year: int):
 			day_of_week = int(date_parts[2])  # day of week - 0:Sunday 1:Monday 2:Tuesday 3:Wednesday 4:Thursday 5:Friday 6:Saturday
 
 			base_year = 1970
-			base_year_1st_day = 4 # the first day of the year 19t0 was Thursday
+			base_year_1st_day = 4 # the first day of the year 1970 was Thursday
 
 			month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 			if ((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0):
