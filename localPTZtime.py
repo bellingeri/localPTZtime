@@ -272,10 +272,12 @@ def _secs2zonedesignator(sec: int):
 	output = ""
 
 	if (sec != 0):
-		output += f"{(sec // 3600):+03d}"
+		output = f"{(sec // 3600):+03d}"
 		
 		mins = abs(sec) % 3600
 		if (mins != 0):
 			output += ":" + f"{(mins // 60):02d}"
+	else:
+		output = "Z"
 	
 	return output
