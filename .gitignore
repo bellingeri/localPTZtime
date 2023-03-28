@@ -1,1 +1,7 @@
-/__pycache__
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+
+# Pico-W-Go VSCode Extension
+.vscode/
+.picowgo
