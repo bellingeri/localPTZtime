@@ -15,48 +15,54 @@ A complete list of strings - and the code to generate them starting from the dat
 ISO 8601 format can be find here:
 * https://en.wikipedia.org/wiki/ISO_8601
 
+Result can be check here:
+* https://www.epochconverter.com/
+
 ## File
 
-All the module is in *localPTZtime.py*, *_test.py* is for testing purposes.
+All the module is in *localPTZtime.py*, *_test.py* is for testing purposes and *_example.py* is an example described later.
 
 ## Functions
 
 The module provides these functions:
 
-* **tztime(timestamp, ptz_string, zone_designator)**
-Does all the work.
+* **tztime(timestamp, ptz_string, zone_designator)**<br>
+  Does all the work.
 
-* **checkptz(ptz_string)**
-Posix Time Zone string formal test.
-In MicroPython it always returns 'None' because re.fullmatch() is not defined.
+* **checkptz(ptz_string)**<br>
+  Posix Time Zone string formal test.<br>
+  In MicroPython it always returns 'None' because re.fullmatch() is not defined.
 
 ## Usage example on MicroPython
 
-Import module:
+### Simple use
+
 ~~~python
+# Import module
 import localPTZtime
-~~~
 
-Define the timestamp:
-~~~python
+# Define the timestamp
 timestamp = 1678689000
-~~~
 
-Define the Posix Time Zone:
-~~~python
+# Define the Posix Time Zone
 ptz_string = "CET-1CEST,M3.5.0,M10.5.0/3"
-~~~
 
-Call tztime() function:
-~~~python
-localPTZtime.tztime(timestamp, ptz_string)
+# Call tztime() function:
+isotime = localPTZtime.tztime(timestamp, ptz_string)
+
+# Print result
+print(isotime)
 ~~~
 
 Expected result is:
 > **'2023-03-13T07:30:00+01'**
 
-The function tztime() can also be called with a third parameter which, if set to False, disables the "zone designator" as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
+The function tztime() can also be callable with a third parameter which, if set to False, disables the "zone designator" (`+1` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
 
+### More advanced use
+
+An example using NTP synchronization can be seen in the [_example.py](_example.py) file.
+You will only need to set the Wi-Fi data and the definition string.
 
 ## To Do
 
