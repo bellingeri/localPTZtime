@@ -57,7 +57,7 @@ print(isotime)
 Expected result is:
 > **'2023-03-13T07:30:00+01'**
 
-The function tztime() can also be callable with a third parameter which, if set to False, disables the "zone designator" (`+1` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
+The function tztime() can also be callable with a third parameter which, if set to False, disables the "zone designator" (`+01` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
 
 ### More advanced use
 

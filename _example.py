@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-	Examble of use of localPTZtime MicroPython module with ntp
+	Examble use of localPTZtime MicroPython module with ntp
 	
 	:author:	Roberto Bellingeri
 	:copyright:	Copyright 2023 - NetGuru

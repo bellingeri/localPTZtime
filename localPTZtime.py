@@ -261,13 +261,13 @@ def _hours2secs(hours: str):
 
 def _secs2zonedesignator(sec: int):
 	"""
-	Convert seconds in hours:mins string for ISO 8601
+	Convert seconds in +00:00 string for ISO 8601
 
 	Parameters:
 	sec (int): seconds
 	
 	Returns:
-	str: Hours in format 00:00
+	str: Hours in format +00:00
 	"""
 	output = ""
 
