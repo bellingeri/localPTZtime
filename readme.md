@@ -1,7 +1,7 @@
 # localPTZtime
 
 This MicroPython module allows the conversion of a timestamp with UTC timezone into other timezones expressed with the Posix Time Zone notation.
-Returns a date in ISO 8601 format.
+Can return a tuple in time_struct format or a string in ISO 8601 format.
 
 No dependencies on 'date', 'calendar', etc. modules; only 'time' and 're'.
 
@@ -18,16 +18,24 @@ ISO 8601 format can be find here:
 Result can be check here:
 * https://www.epochconverter.com/
 
-## File
+It's a work in progress: in particular, the parameters and return values have changed in the past and may change in the future.
+When this happens, a GitHub release is made.
 
-All the module is in *localPTZtime.py*, *_test.py* is for testing purposes and *_example.py* is an example described later.
+## Files
+
+* *localPTZtime.py*: all functions are here.
+* *_test.py*: is for testing purposes (MicroPython and CPython).
+* *_example.py*: is an example described later.
 
 ## Functions
 
 The module provides these functions:
 
-* **tztime(timestamp, ptz_string, zone_designator)**<br>
-  Does all the work.
+* **tztime(timestamp, ptz_string)**<br>
+  Does all the work and return a 9-tuple in time_struct format.
+
+* **tziso(timestamp, ptz_string, zone_designator = False)**<br>
+  Does all the work and return a string in ISO 8601 format.
 
 * **checkptz(ptz_string)**<br>
   Posix Time Zone string formal test.<br>
@@ -44,11 +52,11 @@ import localPTZtime
 # Define the timestamp
 timestamp = 1678689000
 
-# Define the Posix Time Zone
+# Define the Posix Time Zone - this is for Europe/Rome
 ptz_string = "CET-1CEST,M3.5.0,M10.5.0/3"
 
 # Call tztime() function:
-isotime = localPTZtime.tztime(timestamp, ptz_string)
+isotime = localPTZtime.tziso(timestamp, ptz_string)
 
 # Print result
 print(isotime)
@@ -57,13 +65,18 @@ print(isotime)
 Expected result is:
 > **'2023-03-13T07:30:00+01'**
 
-The function tztime() can also be callable with a third parameter which, if set to False, disables the "zone designator" (`+01` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
+The function tziso() can also be callable with a third parameter which, if set to `False`, disables the "zone designator" (`+01` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
 
 ### More advanced use
 
 An example using NTP synchronization can be seen in the [_example.py](_example.py) file.
 You will only need to set the Wi-Fi data and the definition string.
 
+## Known issues
+
+* No formal string checks can be performed in MicroPython at this time; Inserting a malformed string causes unpredictable errors.
+
 ## To Do
 
-1. Test for various timezones and special cases.
+1. Enable use of checkptz() also in MicroPython. 
+2. More test for various timezones and special cases.

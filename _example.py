@@ -13,8 +13,8 @@ import ntptime
 import localPTZtime
 
 
-WIFI_SSID = "-your-wifi-ssid-"
-WIFI_PASSWORD = "-your-wifi-password-"
+WIFI_SSID = "NG" #"-your-wifi-ssid-"
+WIFI_PASSWORD = "***REMOVED***" #"-your-wifi-password-"
 WIFI_MAXWAIT = 10
 
 # Definition string in Posix Time Zone notation
@@ -41,21 +41,21 @@ else:
 
 	t = time.time()
 	t_tuple_gmt = time.gmtime(t)
-	t_iso_local = localPTZtime.tztime(t, PTZ, False)
+	t_tuple_local = localPTZtime.tztime(t, PTZ)
 
-	# Print GMT time in ISO 8601 format
-	print(f"GMT time before synchronization:\t{t_tuple_gmt[0]}-{t_tuple_gmt[1]:02d}-{t_tuple_gmt[2]:02d}T{t_tuple_gmt[3]:02d}:{t_tuple_gmt[4]:02d}:{t_tuple_gmt[5]:02d}")
-	# Print Local time - tztime() already returns an ISO 8601 string
-	print(f"Local time before synchronization:\t{t_iso_local}")
+	# Print GMT time tuple
+	print(f"GMT time before synchronization:\t{t_tuple_gmt}")
+	# Print Local time tuple
+	print(f"Local time before synchronization:\t{t_tuple_local}")
 
 	# NTP synchronization
 	ntptime.settime()
 
 	t = time.time()
 	t_tuple_gmt = time.gmtime(t)
-	t_iso_local = localPTZtime.tztime(t, PTZ, False)
+	t_tuple_local = localPTZtime.tztime(t, PTZ)
 
-	# Print GMT time in ISO 8601 format
-	print(f"GMT time after synchronization:\t\t{t_tuple_gmt[0]}-{t_tuple_gmt[1]:02d}-{t_tuple_gmt[2]:02d}T{t_tuple_gmt[3]:02d}:{t_tuple_gmt[4]:02d}:{t_tuple_gmt[5]:02d}")
-	# Print Local time - tztime() already returns an ISO 8601 string
-	print(f"Local time after synchronization:\t{t_iso_local}")
+	# Print GMT time tuple
+	print(f"GMT time after synchronization:\t\t{t_tuple_gmt}")
+	# Print Local time tuple
+	print(f"Local time after synchronization:\t{t_tuple_local}")

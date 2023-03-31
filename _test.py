@@ -68,9 +68,9 @@ for ts in test:
 		print("TS:\t\t" + str(ts[1]))
 		print("Desiderable:\t" + str(ts[2]))
 
-		ts_local=localPTZtime.tztime(ts[1], ts[0], False)
+		ts_local=localPTZtime.tziso(ts[1], ts[0])
 		print("Calculated:\t" + ts_local)
-		if (ts_local==ts[2]):
+		if (ts_local[:19]==ts[2]):
 			print("Result:\t\t\033[92mOK\033[0m")
 		else:
 			print("Result:\t\t\033[91mKO\033[0m")
