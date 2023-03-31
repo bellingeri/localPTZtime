@@ -10,11 +10,13 @@
 """
 	Changelog:
 	
-	0.0.1	
+	0.0.1
 			initial release
+	0.0.2
+			changed returned format
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 import time
@@ -37,38 +39,17 @@ def checkptz(ptz_string: str):
 
 	if hasattr(re, 'fullmatch'):							# re.fullmatch() is not defined in MicroPython
 		check_re = r"^"
-		check_re += r"([^:\d+-]){3,}"  # std
-		check_re += r"[+-]?\d{1,2}(:\d{1,2}){0,2}" # std offset
-		
-		check_re += r"(([^:\d+-,]){3,}"  # dst, can be omitted
-		check_re += r"(([+-]?\d{1,2}(:\d{1,2}){0,2})?" # dst offset, can be omitted
-		
-		check_re += r","  #dst start
-		check_re += r"("
-		check_re += r"(J\d{1,3})"  #day, leap years don't count 
-		check_re += r"|"
-		check_re += r"(\d{1,3})"  #day, leap years count 
-		check_re += r"|"
-		check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
-		check_re += r")"
+		check_re += r"[^:\d+-]{3,}"  # std name
+		check_re += r"[+-]?\d{1,2}(?::\d{1,2}){0,2}" # std offset
 
-		check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
+		check_re += r"(?:"  # dst zone begin
+		check_re += r"[^:\d+-,]{3,}"  # dst name
+		check_re += r"(?:"  # dst offset begin
+		check_re += r"(?:[+-]?\d{1,2}(?::\d{1,2}){0,2})?" # dst offset time, can be omitted
+		check_re += r"(?:,(?:J\d{1,3}|\d{1,3}|M(?:[1-9]|1[0-2]).[1-5].[0-6])(?:\/\d{1,2}(?::\d{1,2}){0,2})?){2}"    #dst start/end date - time can be omitted
+		check_re += r")"  # dst offset end
+		check_re += r")?" # dst zone finish, can be omitted
 
-		check_re += r","  #dst end
-		check_re += r"("
-		check_re += r"(J\d{1,3})"  #day, leap years don't count
-		check_re += r"|"
-		check_re += r"(\d{1,3})"  #day, leap years count
-		check_re += r"|"
-		check_re += r"(M([1-9]|1[0-2]).[1-5].[0-6])"  # month.week.day
-		check_re += r")"
-
-		check_re += r"(\/\d{1,2}(:\d{1,2}){0,2})?"  # time, can be omitted
-		
-		check_re += r")" # dst offset end
-
-		check_re += r")?" # dst end
-		
 		check_re += r"$"
 
 		#print(check_re)
@@ -81,9 +62,60 @@ def checkptz(ptz_string: str):
 	return result
 
 
-def tztime(timestamp: float, ptz_string: str, zone_designator = True):
+def tztime(timestamp: float, ptz_string: str):
+	"""
+	Converts a time expressed in seconds in struct_time style 9-tuple according to the time zone provided in Posix Time Zone format
+
+	Parameters:
+	timestamp (float): Time in second
+	ptz_string (str): Time zone in Posix format
+	
+	Returns:
+	struct_time style tuple:
+		* ``year``
+		* ``month``
+		* ``mday``
+		* ``hour``
+		* ``minute``
+		* ``second``
+		* ``weekday``
+		* ``yearday``
+		* ``isdst``
+	"""
+	return _timecalc(timestamp, ptz_string)[:9]
+
+
+def tziso(timestamp: float, ptz_string: str, zone_designator = True):
 	"""
 	Return an ISO 8601 date and time string according to the time zone provided in Posix Time Zone format
+
+	Parameters:
+	timestamp (float): Time in second
+	ptz_string (str): Time Zone in Posix format
+	zone_designator (bool): Insert zone designator in returned string - default: True
+	
+	Returns:
+	string: ISO 8601 date and time string
+	"""
+	tx = _timecalc(timestamp, ptz_string)
+
+	stx = f"{tx[0]}-{tx[1]:02d}-{tx[2]:02d}T{tx[3]:02d}:{tx[4]:02d}:{tx[5]:02d}"
+	if (zone_designator == True):
+		if (tx[9] != 0):
+			stx += f"{(tx[9] // 3600):+03d}"
+			
+			mins = abs(tx[9]) % 3600
+			if (mins != 0):
+				stx += ":" + f"{(mins // 60):02d}"
+		else:
+			stx += "Z"
+
+	return stx
+
+
+def _timecalc(timestamp: float, ptz_string: str):
+	"""
+	Converts a time expressed in seconds in 10-tuple according to the time zone provided in Posix Time Zone format
 
 	Parameters:
 	timestamp (float): Time in second
@@ -91,13 +123,24 @@ def tztime(timestamp: float, ptz_string: str, zone_designator = True):
 	zone_designator (bool): Insert zone designator in returned string - default: True
 	
 	Returns:
-	string: ISO 8601 date and time string
+	tuple: 
+	    * ``year``
+		* ``month``
+		* ``mday``
+		* ``hour``
+		* ``minute``
+		* ``second``
+		* ``weekday``
+		* ``yearday``
+		* ``isdst``
+		* ``utcoffset``
 	"""
 	ptz_string = _normalize(ptz_string)
 
 	std_offset_seconds = 0
 	dst_offset_seconds = 0
 	tot_offset_seconds = 0
+	is_dst = False
 
 	ptz_parts = ptz_string.split(",")
 
@@ -124,17 +167,23 @@ def tztime(timestamp: float, ptz_string: str, zone_designator = True):
 
 		if (dst_start < dst_end):							#northern hemisphere
 			if ((timestamp + std_offset_seconds) < dst_start):
+				is_dst = False
 				tot_offset_seconds = std_offset_seconds
 			elif ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+				is_dst = True
 				tot_offset_seconds =  std_offset_seconds + dst_offset_seconds
 			else:
+				is_dst = False
 				tot_offset_seconds =  std_offset_seconds
 		else:												# southern hemisphere
 			if ((timestamp + std_offset_seconds + dst_offset_seconds) < dst_end):
+				is_dst = True
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
 			elif ((timestamp + std_offset_seconds) < dst_start):
+				is_dst = False
 				tot_offset_seconds = std_offset_seconds
 			else:
+				is_dst = True
 				tot_offset_seconds = std_offset_seconds + dst_offset_seconds
 		
 		#print("dstOffset:\t" + str(dst_offset_seconds))
@@ -146,12 +195,11 @@ def tztime(timestamp: float, ptz_string: str, zone_designator = True):
 
 	timemod = timestamp + tot_offset_seconds
 
-	tx = time.gmtime(int(timemod))
-	stx = f"{tx[0]}-{tx[1]:02d}-{tx[2]:02d}T{tx[3]:02d}:{tx[4]:02d}:{tx[5]:02d}"
-	if (zone_designator == True):
-		stx += _secs2zonedesignator(tot_offset_seconds)
+	t = time.gmtime(int(timemod))
 
-	return stx
+	tx = (t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], int(is_dst), tot_offset_seconds)
+
+	return tx
 
 
 def _normalize(ptz_string: str):
@@ -163,7 +211,6 @@ def _normalize(ptz_string: str):
 
 	Returns:
 	str: Normalized PTZ string
-
 	"""
 	ptz_string = ptz_string.upper()
 	ptz_string = re.compile(r"\<[^\>]*\>").sub("DUMMY",ptz_string) # For what appear to be non-standard strings like "<+11>-11<+12>,M10.1.0,M4.1.0/3"
@@ -257,27 +304,3 @@ def _hours2secs(hours: str):
 				seconds += int(hours_parts[2])
 	
 	return seconds
-
-
-def _secs2zonedesignator(sec: int):
-	"""
-	Convert seconds in +00:00 string for ISO 8601
-
-	Parameters:
-	sec (int): seconds
-	
-	Returns:
-	str: Hours in format +00:00
-	"""
-	output = ""
-
-	if (sec != 0):
-		output = f"{(sec // 3600):+03d}"
-		
-		mins = abs(sec) % 3600
-		if (mins != 0):
-			output += ":" + f"{(mins // 60):02d}"
-	else:
-		output = "Z"
-	
-	return output
