@@ -46,7 +46,7 @@ def checkptz(ptz_string: str):
 		check_re += r"[^:\d+-,]{3,}"  # dst name
 		check_re += r"(?:"  # dst offset begin
 		check_re += r"(?:[+-]?\d{1,2}(?::\d{1,2}){0,2})?" # dst offset time, can be omitted
-		check_re += r"(?:,(?:J\d{1,3}|\d{1,3}|M(?:[1-9]|1[0-2]).[1-5].[0-6])(?:\/\d{1,2}(?::\d{1,2}){0,2})?){2}"    #dst start/end date - time can be omitted
+		check_re += r"(?:,(?:J\d{1,3}|\d{1,3}|M(?:[1-9]|1[0-2])\.[1-5]\.[0-6])(?:\/\d{1,2}(?::\d{1,2}){0,2})?){2}"    #dst start/end date - time can be omitted
 		check_re += r")"  # dst offset end
 		check_re += r")?" # dst zone finish, can be omitted
 
