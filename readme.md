@@ -39,7 +39,7 @@ The module provides these functions:
 
 * **checkptz(ptz_string)**<br>
   Posix Time Zone string formal test.<br>
-  In MicroPython it always returns 'None' because re.fullmatch() is not defined.
+  In MicroPython it always returns 'None' because re.fullmatch() is not defined and the regex is out of the [usable subset](https://docs.micropython.org/en/latest/library/re.html).
 
 ## Usage example on MicroPython
 
@@ -72,11 +72,15 @@ The function tziso() can also be callable with a third parameter which, if set t
 An example using NTP synchronization can be seen in the [_example.py](_example.py) file.
 You will only need to set the Wi-Fi data and the definition string.
 
+## Note
+
+Posix TZ string like `<+11>-11` shouldn't be valid as defined on the [gnu.org](https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) site, but they appear to be widely used. For this reason they are still accepted.
+
 ## Known issues
 
-* No formal string checks can be performed in MicroPython at this time; Inserting a malformed string causes unpredictable errors.
+* No formal string checks can be performed in MicroPython at this time; Using a malformed string causes unpredictable errors.
 
 ## To Do
 
 1. Enable use of checkptz() also in MicroPython. 
-2. More test for various timezones and special cases.
+2. More test for various timezones and special cases. Tests for DST defined with "Jn" or "n" instead of "M".
