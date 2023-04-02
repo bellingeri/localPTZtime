@@ -66,11 +66,12 @@ for ts in test:
 		print("---------------------------")
 		print("PTZ:\t\t" + str(ts[0]))
 		print("TS:\t\t" + str(ts[1]))
-		print("Desiderable:\t" + str(ts[2]))
+		print("Desired:\t" + str(ts[2]))
 
 		ts_local=localPTZtime.tziso(ts[1], ts[0])
 		print("Calculated:\t" + ts_local)
-		if (ts_local[:19]==ts[2]):
+
+		if (ts_local[:19]==ts[2]):  # comparison between calculated (without zone designator) and desired.
 			print("Result:\t\t\033[92mOK\033[0m")
 		else:
 			print("Result:\t\t\033[91mKO\033[0m")
