@@ -124,7 +124,7 @@ def _timecalc(timestamp: float, ptz_string: str):
 	
 	Returns:
 	tuple: 
-	    * ``year``
+		* ``year``
 		* ``month``
 		* ``mday``
 		* ``hour``
@@ -241,6 +241,8 @@ def _parseposixtransition(transition: str, year: int):
 	
 	
 	if (transition[0] == "M"):
+		# 'Mm.n.d' format.
+
 		date_parts = parts[0][1:].split('.')
 		if (len(date_parts)==3):
 			month = int(date_parts[0])  # month from '1' to '12'
@@ -270,14 +272,18 @@ def _parseposixtransition(transition: str, year: int):
 			tr = time.mktime((year, month, day_of_month, 0, 0, 0, 0, 0, 0))
 		
 	elif (transition[0] == "J"):
+		# 'Jn' format. Counting from 1 to 365, and February 29 is never counted.
+
 		day_num = int(parts[0][1:])
-		if ((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0):
-			day_num += 1
-		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + (day_num * 86400)
+		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + ((day_num - 1) * 86400)
 
 	else:
-		day_num = int(parts[0][1:])
-		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + ((day_num + 1) * 86400)
+		# 'n' format. Counting from zero to 364, or to 365 in leap years.
+
+		day_num = int(parts[0])
+		if (((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0) and (day_num > (31 + 28))):  # after February 28 in leap years
+			day_num += 1
+		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + (day_num * 86400)
 
 	return tr + seconds
 
