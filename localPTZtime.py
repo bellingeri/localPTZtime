@@ -275,14 +275,14 @@ def _parseposixtransition(transition: str, year: int):
 		# 'Jn' format. Counting from 1 to 365, and February 29 is never counted.
 
 		day_num = int(parts[0][1:])
+		if (((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0) and (day_num > (31 + 28))):  # after February 28 in leap years
+			day_num += 1
 		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + ((day_num - 1) * 86400)
 
 	else:
 		# 'n' format. Counting from zero to 364, or to 365 in leap years.
 
 		day_num = int(parts[0])
-		if (((((year % 4) == 0) and ((year % 100) != 0)) or (year % 400) == 0) and (day_num > (31 + 28))):  # after February 28 in leap years
-			day_num += 1
 		tr = time.mktime((year,1,1,0,0,0,0,0,0)) + (day_num * 86400)
 
 	return tr + seconds
