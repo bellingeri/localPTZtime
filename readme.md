@@ -9,10 +9,10 @@ A description of the Posix Time Zone format can be found at these addresses:
 * https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
 * https://www.postgresql.org/docs/current/datetime-posix-timezone-specs.html
 
-A complete list of strings - and the code to generate them starting from the database maintained by IANA (https://www.iana.org/time-zones), present on linux systems - can be find at this address:
+A complete list of strings - and the code to generate them starting from the database maintained by IANA (https://www.iana.org/time-zones), present on linux systems - can be found at this address:
 * https://github.com/nayarsystems/posix_tz_db
 
-ISO 8601 format can be find here:
+ISO 8601 format can be found here:
 * https://en.wikipedia.org/wiki/ISO_8601
 
 Result can be check here:
