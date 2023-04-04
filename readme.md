@@ -49,7 +49,7 @@ The module provides these functions:
 # Import module
 import localPTZtime
 
-# Define the timestamp
+# Define the timestamp - this is 13 March 2023 06:30:00 in GMT time zone
 timestamp = 1678689000
 
 # Define the Posix Time Zone - this is for Europe/Rome
@@ -63,7 +63,7 @@ print(isotime)
 ~~~
 
 Expected result is:
-> **'2023-03-13T07:30:00+01'**
+> 2023-03-13T07:30:00+01
 
 The function tziso() can also be callable with a third parameter which, if set to `False`, disables the "zone designator" (`+01` in this example) as described here: https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators
 
