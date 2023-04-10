@@ -34,7 +34,7 @@ The module provides these functions:
 * **tztime(timestamp, ptz_string)**<br>
   Does all the work and return a 9-tuple in time_struct format.
 
-* **tziso(timestamp, ptz_string, zone_designator = False)**<br>
+* **tziso(timestamp, ptz_string, zone_designator = True)**<br>
   Does all the work and return a string in ISO 8601 format.
 
 * **checkptz(ptz_string)**<br>
