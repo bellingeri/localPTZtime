@@ -20,6 +20,11 @@ if sys.implementation.name != "micropython":	# type: ignore
 												# time.tzset() should be called on Linux, but doesn't exist on Windows. time.tzset() is not defined in MicroPython.
 		time.tzset()							# type: ignore
 
+color = {
+	'red': "\033[91m",
+	'green': "\033[92m",
+	'none': "\033[0m"
+	}
 
 test = list()
 
@@ -61,9 +66,12 @@ test = [
 	
 ]
 
+n = n_ok = n_ko = 0
+
 for ts in test:
+	n += 1
+	print("---------------------------")
 	if (localPTZtime.checkptz(ts[0]) != False):
-		print("---------------------------")
 		print("PTZ:\t\t" + str(ts[0]))
 		print("TS:\t\t" + str(ts[1]))
 		print("Desired:\t" + str(ts[2]))
@@ -72,6 +80,16 @@ for ts in test:
 		print("Calculated:\t" + ts_local)
 
 		if (ts_local[:19]==ts[2]):  # comparison between calculated (without zone designator) and desired.
-			print("Result:\t\t\033[92mOK\033[0m")
+			print(f"Result:\t\t{color['green']}OK{color['none']}")
+			n_ok += 1
 		else:
-			print("Result:\t\t\033[91mKO\033[0m")
+			print(f"Result:\t\t{color['red']}KO{color['none']}")
+			n_ko += 1
+	else:
+		print(f"Error in PTZ string: {color['red']}{ts[0]}{color['none']}")
+		n_ko += 1
+
+print("\n\n--Test results--")
+print(f"Number of checks:\t{n}")
+print(f"Successful checks:\t{n_ok}")
+print(f"Failed checks:\t\t{n_ko}")
