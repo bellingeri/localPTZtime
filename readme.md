@@ -55,7 +55,7 @@ timestamp = 1678689000
 # Define the Posix Time Zone - this is for Europe/Rome
 ptz_string = "CET-1CEST,M3.5.0,M10.5.0/3"
 
-# Call tztime() function:
+# Call tziso() function:
 isotime = localPTZtime.tziso(timestamp, ptz_string)
 
 # Print result

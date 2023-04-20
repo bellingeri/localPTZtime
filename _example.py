@@ -13,8 +13,8 @@ import ntptime
 import localPTZtime
 
 
-WIFI_SSID = "NG" #"-your-wifi-ssid-"
-WIFI_PASSWORD = "***REMOVED***" #"-your-wifi-password-"
+WIFI_SSID = "" #"-your-wifi-ssid-"
+WIFI_PASSWORD = "" #"-your-wifi-password-"
 WIFI_MAXWAIT = 10
 
 # Definition string in Posix Time Zone notation
