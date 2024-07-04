@@ -31,15 +31,71 @@ When this happens, a GitHub release is made.
 
 The module provides these functions:
 
-* **tztime(timestamp, ptz_string)**<br>
-  Does all the work and return a 9-tuple in time_struct format.
+#### tztime
 
-* **tziso(timestamp, ptz_string, zone_designator = True)**<br>
-  Does all the work and return a string in ISO 8601 format.
+```python
+def tztime(timestamp: float, ptz_string: str)
+```
 
-* **checkptz(ptz_string)**<br>
-  Posix Time Zone string formal test.<br>
-  In MicroPython it always returns 'None' because re.fullmatch() is not defined and the regex is out of the [usable subset](https://docs.micropython.org/en/latest/library/re.html).
+Converts a time expressed in seconds in struct_time style 9-tuple according to the time zone provided in Posix Time Zone format
+
+**Arguments**:
+
+- `timestamp` _float_ - Time in second
+- `ptz_string` _str_ - Time zone in Posix format
+  
+
+**Returns**:
+
+  struct_time style tuple:
+  * ``year``
+  * ``month``
+  * ``mday``
+  * ``hour``
+  * ``minute``
+  * ``second``
+  * ``weekday``
+  * ``yearday``
+  * ``isdst``
+
+
+#### tziso
+
+```python
+def tziso(timestamp: float, ptz_string: str, zone_designator=True)
+```
+
+Return an ISO 8601 date and time string according to the time zone provided in Posix Time Zone format
+
+**Arguments**:
+
+- `timestamp` _float_ - Time in second
+- `ptz_string` _str_ - Time Zone in Posix format
+- `zone_designator` _bool_ - Insert zone designator in returned string - default: True
+  
+
+**Returns**:
+
+- `string` - ISO 8601 date and time string
+
+
+#### checkptz
+
+```python
+def checkptz(ptz_string: str)
+```
+
+Check if the format of the string complies with what is described here: https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
+Only for testing purposes: on MicroPython always return 'None'.
+
+**Arguments**:
+
+- `ptz_string` _str_ - String in Posix Time Zone format
+  
+
+**Returns**:
+
+- `bool` - Test result
 
 ## Usage example on MicroPython
 
