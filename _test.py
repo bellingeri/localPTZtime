@@ -37,6 +37,9 @@ test = [
 	["CET-1CEST,M3.5.0,M10.5.0/3", 1698541199, "2023-10-29T02:59:59"],		#UTC 2023-10-29 00:59:59 - Before std change for Europe/Rome
 	["CET-1CEST,M3.5.0,M10.5.0/3", 1698541200, "2023-10-29T02:00:00"],		#UTC 2023-10-29 01:00:00 - After std change for Europe/Rome
 
+	["CET-1CEST,M3.5.0,M10.5.0/3", 1743296399, "2025-03-30T01:59:59"],		#UTC 2025-03-30 00:59:59 - Before dst change
+	["CET-1CEST,M3.5.0,M10.5.0/3", 1743296400, "2025-03-30T03:00:00"],		#UTC 2025-03-30 01:00:00 - After dst change
+
 	["GMT0BST,M3.5.0/1,M10.5.0", 1679792399, "2023-03-26T00:59:59"],		#UTC 2023-03-26 00:59:59 - Before dst change for Europe/London
 	["GMT0BST,M3.5.0/1,M10.5.0", 1679792400, "2023-03-26T02:00:00"],		#UTC 2023-03-26 01:00:00 - After dst change for Europe/London
 	["GMT0BST,M3.5.0/1,M10.5.0", 1698541199, "2023-10-29T01:59:59"],		#UTC 2023-10-29 00:59:59 - Before std change for Europe/London
