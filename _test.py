@@ -71,6 +71,12 @@ test = [
 
 n = n_ok = n_ko = 0
 
+with open("testdata/testdata.tsv") as f:
+	lines = f.read().splitlines()
+	for line in lines:
+		parts = line.split("\t")
+		test.append([parts[0], int(parts[1]), parts[2]])
+
 for ts in test:
 	n += 1
 	print("---------------------------")
@@ -82,7 +88,7 @@ for ts in test:
 		ts_local=localPTZtime.tziso(ts[1], ts[0])
 		print("Calculated:\t" + ts_local)
 
-		if (ts_local[:19]==ts[2]):  # comparison between calculated (without zone designator) and desired.
+		if (ts_local[:19]==ts[2][:19]):  # comparison between calculated and desired (both without zone designator)
 			print(f"Result:\t\t{color['green']}OK{color['none']}")
 			n_ok += 1
 		else:
