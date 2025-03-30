@@ -79,20 +79,18 @@ with open("testdata/testdata.tsv") as f:
 
 for ts in test:
 	n += 1
-	print("---------------------------")
 	if (localPTZtime.checkptz(ts[0]) != False):
-		print("PTZ:\t\t" + str(ts[0]))
-		print("TS:\t\t" + str(ts[1]))
-		print("Desired:\t" + str(ts[2]))
-
 		ts_local=localPTZtime.tziso(ts[1], ts[0])
-		print("Calculated:\t" + ts_local)
 
 		if (ts_local[:19]==ts[2][:19]):  # comparison between calculated and desired (both without zone designator)
-			print(f"Result:\t\t{color['green']}OK{color['none']}")
 			n_ok += 1
 		else:
+			print("PTZ:\t\t" + str(ts[0]))
+			print("TS:\t\t" + str(ts[1]))
+			print("Desired:\t" + str(ts[2]))
+			print("Calculated:\t" + ts_local)
 			print(f"Result:\t\t{color['red']}KO{color['none']}")
+			print("---------------------------")
 			n_ko += 1
 	else:
 		print(f"Error in PTZ string: {color['red']}{ts[0]}{color['none']}")
