@@ -37,6 +37,9 @@ test = [
 	["CET-1CEST,M3.5.0,M10.5.0/3", 1698541199, "2023-10-29T02:59:59"],		#UTC 2023-10-29 00:59:59 - Before std change for Europe/Rome
 	["CET-1CEST,M3.5.0,M10.5.0/3", 1698541200, "2023-10-29T02:00:00"],		#UTC 2023-10-29 01:00:00 - After std change for Europe/Rome
 
+	["CET-1CEST,M3.5.0,M10.5.0/3", 1743296399, "2025-03-30T01:59:59"],		#UTC 2025-03-30 00:59:59 - Before dst change
+	["CET-1CEST,M3.5.0,M10.5.0/3", 1743296400, "2025-03-30T03:00:00"],		#UTC 2025-03-30 01:00:00 - After dst change
+
 	["GMT0BST,M3.5.0/1,M10.5.0", 1679792399, "2023-03-26T00:59:59"],		#UTC 2023-03-26 00:59:59 - Before dst change for Europe/London
 	["GMT0BST,M3.5.0/1,M10.5.0", 1679792400, "2023-03-26T02:00:00"],		#UTC 2023-03-26 01:00:00 - After dst change for Europe/London
 	["GMT0BST,M3.5.0/1,M10.5.0", 1698541199, "2023-10-29T01:59:59"],		#UTC 2023-10-29 00:59:59 - Before std change for Europe/London
@@ -68,22 +71,26 @@ test = [
 
 n = n_ok = n_ko = 0
 
+with open("testdata/testdata.tsv") as f:
+	lines = f.read().splitlines()
+	for line in lines:
+		parts = line.split("\t")
+		test.append([parts[0], int(parts[1]), parts[2]])
+
 for ts in test:
 	n += 1
-	print("---------------------------")
 	if (localPTZtime.checkptz(ts[0]) != False):
-		print("PTZ:\t\t" + str(ts[0]))
-		print("TS:\t\t" + str(ts[1]))
-		print("Desired:\t" + str(ts[2]))
-
 		ts_local=localPTZtime.tziso(ts[1], ts[0])
-		print("Calculated:\t" + ts_local)
 
-		if (ts_local[:19]==ts[2]):  # comparison between calculated (without zone designator) and desired.
-			print(f"Result:\t\t{color['green']}OK{color['none']}")
+		if (ts_local[:19]==ts[2][:19]):  # comparison between calculated and desired (both without zone designator)
 			n_ok += 1
 		else:
+			print("PTZ:\t\t" + str(ts[0]))
+			print("TS:\t\t" + str(ts[1]))
+			print("Desired:\t" + str(ts[2]))
+			print("Calculated:\t" + ts_local)
 			print(f"Result:\t\t{color['red']}KO{color['none']}")
+			print("---------------------------")
 			n_ko += 1
 	else:
 		print(f"Error in PTZ string: {color['red']}{ts[0]}{color['none']}")
